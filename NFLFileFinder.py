@@ -1,36 +1,7 @@
 from os import listdir
 from os.path import isfile, join
-'''
-self.fixtureFileList = [	'fetch_all.py',
-										 'future_odds1379108571.dat',
-										 'future_odds1380643263.dat',
-										 'future_odds1380645046.dat',
-										 'lists.py',
-										 'lists.pyc',
-										 'nflodds_money_11379108554.dat',
-										 'nflodds_money_11379109625.dat',
-										 'nflodds_money_11379111424.dat',
-										 'nflodds_money_21380641440.dat',
-										 'nflodds_money_21380643245.dat',
-										 'nflodds_money_21380645040.dat',
-										 'nflodds_spread_11379108532.dat',
-										 'nflodds_spread_11379109602.dat',
-										 'nflodds_spread_11379111401.dat',
-										 'nflodds_spread_11379629802.dat',
-										 'nflodds_spread_11379631602 copy.html',
-										 'nflodds_spread_11379631602.dat',
-										 'nflodds_spread_11380643202.dat',
-										 'nflodds_spread_11380645001.dat',
-										 'offshore_money_11379108548.dat',
-										 'offshore_money_11379109620.dat',
-										 'offshore_money_21380645035.dat',
-										 'offshore_spread_11379108538.dat',
-										 'offshore_spread_11379109609.dat',
-										 'offshore_spread_11379111408.dat',
-										 'offshore_spread_21380643224.dat',
-										 'offshore_spread_21380645013.dat']
-										 '''
-
+from datetime import date
+import pytz
 
 class FileFinder(object):
 	def __init__(self, testFileList=None, dirs=None):
@@ -41,7 +12,46 @@ class FileFinder(object):
 			self.fileList = testFileList
 		else:
 			self.fileList = [ f for f in listdir(self.dirs) if isfile(join(self.dirs,f)) ]
-			
+		self.weeks = self._setUpNFLSchedule()
+
+	def _setUpNFLSchedule(self):
+		return {
+			'1'		:	{'start' : date(2013, 9, 5),	'end' : date(2013, 9, 9)},
+			'2'		:	{'start' : date(2013, 9, 12),	'end' : date(2013, 9, 16)},
+			'3'		:	{'start' : date(2013, 9, 19),	'end' : date(2013, 9, 23)},
+			'4'		:	{'start' : date(2013, 9, 19),	'end' : date(2013, 9, 23)},
+			'5'		:	{'start' : date(2013, 10, 3),	'end' : date(2013, 10, 7)},
+			'6'		:	{'start' : date(2013, 10, 10),	'end' : date(2013, 10, 14)},
+			'7'		:	{'start' : date(2013, 10, 17),	'end' : date(2013, 10, 21)},
+			'8'		:	{'start' : date(2013, 10, 24),	'end' : date(2013, 10, 28)},
+			'9'		:	{'start' : date(2013, 10, 31),	'end' : date(2013, 11, 04)},
+			'10'	:	{'start' : date(2013, 11, 07),	'end' : date(2013, 11, 11)},
+			'11'	:	{'start' : date(2013, 11, 14),	'end' : date(2013, 11, 18)},
+			'12'	:	{'start' : date(2013, 11, 21),	'end' : date(2013, 11, 25)},
+			'13'	:	{'start' : date(2013, 11, 28),	'end' : date(2013, 12, 2)},
+			'14'	:	{'start' : date(2013, 12, 5),	'end' : date(2013, 12, 9)},
+			'15'	:	{'start' : date(2013, 12, 12),	'end' : date(2013, 12, 16)},
+			'16'	:	{'start' : date(2013, 12, 22),	'end' : date(2013, 12, 23)},
+			'17'	:	{'start' : date(2013, 12, 29),	'end' : date(2013, 12, 29)},
+
+		}
+
+	def _convertEpochToDate(self, epoch):
+		return date.fromtimestamp(epoch)
+
+	def _convertDateToEpoch(self, pdate):
+		return int((pdate - date(1970,1,1)).total_seconds())
+
+	def _convertEpochToNFLWeek(self, epoch):
+		for week, startend in self.weeks.iteritems():
+			start = self._convertDateToEpoch( startend['start'] )
+			end = self._convertDateToEpoch( startend['end'] )
+			print epoch, week, start, end
+			if (epoch > start) and (epoch < end):
+				print week
+
+		
+
 	
 	def getNFLSpreadFiles(self):
 		results = []
