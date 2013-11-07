@@ -1,36 +1,6 @@
 from os import listdir
 from os.path import isfile, join
-'''
-self.fixtureFileList = [	'fetch_all.py',
-										 'future_odds1379108571.dat',
-										 'future_odds1380643263.dat',
-										 'future_odds1380645046.dat',
-										 'lists.py',
-										 'lists.pyc',
-										 'nflodds_money_11379108554.dat',
-										 'nflodds_money_11379109625.dat',
-										 'nflodds_money_11379111424.dat',
-										 'nflodds_money_21380641440.dat',
-										 'nflodds_money_21380643245.dat',
-										 'nflodds_money_21380645040.dat',
-										 'nflodds_spread_11379108532.dat',
-										 'nflodds_spread_11379109602.dat',
-										 'nflodds_spread_11379111401.dat',
-										 'nflodds_spread_11379629802.dat',
-										 'nflodds_spread_11379631602 copy.html',
-										 'nflodds_spread_11379631602.dat',
-										 'nflodds_spread_11380643202.dat',
-										 'nflodds_spread_11380645001.dat',
-										 'offshore_money_11379108548.dat',
-										 'offshore_money_11379109620.dat',
-										 'offshore_money_21380645035.dat',
-										 'offshore_spread_11379108538.dat',
-										 'offshore_spread_11379109609.dat',
-										 'offshore_spread_11379111408.dat',
-										 'offshore_spread_21380643224.dat',
-										 'offshore_spread_21380645013.dat']
-										 '''
-
+from BeautifulSoup import BeautifulSoup as bs4
 
 class FileFinder(object):
 	def __init__(self, testFileList=None, dirs=None):
@@ -51,6 +21,23 @@ class FileFinder(object):
 		#print results
 		return results
 
+	def getNFLMatchups(self, path):
+		results = []
+		soup = bs4( open(path, 'r').read() )
+		##grid = soup.find("td", {"class" : "viBodyBorderNorm"})
+		### bigger table but, seemingly can get more specificity by color
+		grid = soup.find("table", {"bgcolor" : "C48F1B"})
+		#tr color:d6bd7b are rows with info, that I don't need so remove
+		extraneous_rows = grid.findAll("tr", {"bgcolor" : "d6bd7b"})
+		[row.extract() for row in extraneous_rows]
+		game_rows = grid.findAll("tr")
+		#note; the above game_rows have all betting information, helful for future stories
+		for game in game_rows:
+			dirty_teams = game.findAll("a", {"target":None})
+			row = {'home' : dirty_teams[1].text, 'away' : dirty_teams[0].text}
+			results.append(row)
+
+		return results
 
 
 
