@@ -23,16 +23,20 @@ class FileFinder(object):
 
 	def getNFLMatchups(self, path):
 		results = []
-		f = open(path, 'r')
-		data = f.read()
-		soup = bs4(data)
-		grid = soup.findAll("td", {'class' : 'viCellBg1 cellTextNorm cellBorderL1', 'width':158})
-		for g in grid:
-			teams = g.findAll("a", {'class' : 'tabletext'})
-			match = {}
-			match['away'] = teams[0].text
-			match['home'] = teams[1].text
-			results.append(match)
+		soup = bs4( open(path, 'r').read() )
+		##grid = soup.find("td", {"class" : "viBodyBorderNorm"})
+		### bigger table but, seemingly can get more specificity by color
+		grid = soup.find("table", {"bgcolor" : "C48F1B"})
+		#tr color:d6bd7b are rows with info, that I don't need so remove
+		extraneous_rows = grid.findAll("tr", {"bgcolor" : "d6bd7b"})
+		[row.extract() for row in extraneous_rows]
+		game_rows = grid.findAll("tr")
+		#note; the above game_rows have all betting information, helful for future stories
+		for game in game_rows:
+			dirty_teams = game.findAll("a", {"target":None})
+			row = {'home' : dirty_teams[1].text, 'away' : dirty_teams[0].text}
+			results.append(row)
+
 		return results
 
 
